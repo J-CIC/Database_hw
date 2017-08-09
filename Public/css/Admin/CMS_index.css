@@ -1,0 +1,25 @@
+.topbar{
+	width: 100%;
+	float: left;
+	height: 100px;
+	background-color: #6bae40;
+}
+.menu{
+	width: 20%;
+	float: left;
+	background-color: white;
+}
+.sub_menu{
+	width: 20%;
+	float: left;
+	background-color: white;
+}
+.content{
+	width: 80%;
+	float: left;
+}
+.myframe{
+	width: 100%
+	scroll:no;
+	border:0;
+}
