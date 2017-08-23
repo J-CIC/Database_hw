@@ -71,7 +71,7 @@ class RoleController extends BasicController{
                 $data []= $arr;
             }
             $cond["role_id"] = I("post.id",1,'intval');
-            if(D("Access")->where($cond)->delete()){
+            if((D("Access")->where($cond)->delete())!==false){
                 if(D("Access")->addAll($data)){
                     $this->success("更改成功");
                 }else{
