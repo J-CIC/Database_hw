@@ -67,10 +67,10 @@ class RoleController extends BasicController{
             foreach ($input as $key => $value) {
                 $condition["id"] = $value;
                 $temp = D("Node")->where($condition)->find();
-                $arr = array("role_id"=>$this->role_id,"node_id"=>$value,"level"=>$temp["level"],"module"=>$temp["name"]);
+                $arr = array("role_id"=>I("post.id",1,'intval'),"node_id"=>$value,"level"=>$temp["level"],"module"=>$temp["name"]);
                 $data []= $arr;
             }
-            $cond["role_id"] = $this->role_id;
+            $cond["role_id"] = I("post.id",1,'intval');
             if(D("Access")->where($cond)->delete()){
                 if(D("Access")->addAll($data)){
                     $this->success("更改成功");
