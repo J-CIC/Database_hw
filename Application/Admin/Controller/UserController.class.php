@@ -21,7 +21,7 @@ class UserController extends BasicController{
 			$data['password'] = md5($data['password']);
 			$arr = D("User")->addUser($data);
 			if($arr["status"]==1){
-				$access["role_id"] = $this->role_id;
+				$access["role_id"] = I("post.roleid",1,'intval');
 				$access["user_id"] = $arr["id"];
 				if(D("think_role_user")->add($access)){
 					$this->success("插入成功","index",3);
