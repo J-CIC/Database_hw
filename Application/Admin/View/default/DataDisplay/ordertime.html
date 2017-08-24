@@ -1,0 +1,84 @@
+<layout name="layout" />
+<script src="__PUBLIC__/js/echarts.min.js"></script>
+<style type="text/css">
+    #charts{
+        width: 600px;
+        height: 500px;
+    }
+</style>
+<div id="charts">
+    
+</div>
+<script type="text/javascript">
+    var mycharts = echarts.init(document.getElementById("charts"));
+    mycharts.showLoading();
+    $.ajax({
+        type: 'POST',
+        url: "OrderTimeDistribution",
+        data: {
+            
+        },
+        success: function(data, textStatus){
+            var x = [];
+            var y = [];
+            for(var i=0;i<data.length;i++){
+                x.push(data[i].pay_sum/100)
+                y.push(data[i].times)
+            }
+            var option = {
+                title: {
+                    text: '销量排行图',
+                    subtext: '以天为单位'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    boundaryGap: [0, 0.01],
+                    axisLabel:{
+                        formatter:"{value}元"
+                    }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: y
+                },
+                series: [
+                    {
+                        name: '销量',
+                        type: 'bar',
+                        data: x,
+                        itemStyle:{
+                            normal:{
+                                color:'#337ab7',
+                                formatter:'{c}元'
+                            }
+                        },
+                        label:{
+                            normal:{
+                                show:true,
+                                formatter:'{c}元'
+                            }
+                        }
+                    },
+                ]
+            };
+            mycharts.hideLoading();
+            mycharts.setOption(option);
+        },
+        error:function(XMLHttpRequest, textStatus, errorThrown){
+            console.log(textStatus);
+        },
+        dataType: "JSON"
+    });
+</script>

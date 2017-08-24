@@ -54,5 +54,12 @@ class DataDisplayController extends BasicController{
 	    $this->assign('page',$show);// 赋值分页输出
 	    $this->display('allData'); // 输出模板
 	}
-	
+	public function OrderTimeDistribution(){
+		if(IS_POST){
+			$res = D("Order")->getOrdersTimeDistriubution("day");
+			$this->ajaxReturn($res);
+		}else{			
+			$this->display("ordertime");
+		}
+	}
 }
