@@ -57,7 +57,9 @@ class DataDisplayController extends BasicController{
 	public function OrderTimeDistribution(){
 		if(IS_POST){
 			$res = D("Order")->getOrdersTimeDistriubution("day");
-			$this->ajaxReturn($res);
+			$res2 = D("Order")->getOrdersTimeDistriubution("day",true);
+			$arr = array("ranks"=>$res,"times"=>$res2);
+			$this->ajaxReturn($arr);
 		}else{			
 			$this->display("ordertime");
 		}

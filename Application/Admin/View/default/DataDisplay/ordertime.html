@@ -5,12 +5,21 @@
         width: 600px;
         height: 500px;
     }
+    #charts2{
+        width: 600px;
+        height: 500px;
+    }
 </style>
 <div id="charts">
     
 </div>
+<div id="charts2">
+    
+</div>
 <script type="text/javascript">
     var mycharts = echarts.init(document.getElementById("charts"));
+    var mycharts2 = echarts.init(document.getElementById("charts2"));
+    mycharts2.showLoading();
     mycharts.showLoading();
     $.ajax({
         type: 'POST',
@@ -19,9 +28,11 @@
             
         },
         success: function(data, textStatus){
+            var times = data.times;
+            data = data.ranks;
             var x = [];
             var y = [];
-            for(var i=0;i<data.length;i++){
+            for(var i=data.length-1;i>=0;i--){
                 x.push(data[i].pay_sum/100)
                 y.push(data[i].times)
             }
@@ -75,10 +86,59 @@
             };
             mycharts.hideLoading();
             mycharts.setOption(option);
+            setImage(times);
         },
         error:function(XMLHttpRequest, textStatus, errorThrown){
             console.log(textStatus);
         },
         dataType: "JSON"
     });
+    function setImage(data){
+        var x = [];
+        var y = [];
+        for(var i=0;i<data.length;i++){
+            y.push(data[i].pay_sum/100)
+            x.push(data[i].times)
+        }
+        option = {
+            title: {
+                text: '时间销量图'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data:['销量']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            toolbox: {
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: x
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name:'销量',
+                    type:'line',
+                    stack: '总量',
+                    data:y
+                },
+            ]
+        };
+        mycharts2.hideLoading();
+        mycharts2.setOption(option);
+    }
 </script>
