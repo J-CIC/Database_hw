@@ -1,0 +1,194 @@
+<layout name="layout" />
+<script src="__PUBLIC__/js/echarts.min.js"></script>
+<style type="text/css">
+    .chart{
+        width:100%;
+    }
+    .chart .title{
+        width:100%;
+        height:50px;
+        line-height:50px;
+    }
+    .chart .body{
+        width:100%;
+        height:400px;
+    }
+</style>
+<div id="order_by_province" class="chart">
+    <div class="title">
+        <span>用户群体分析</span>&nbsp;&gt;&nbsp;<span>全国分布</span>
+    </div>
+    <div class="body" id="province_chart">
+            
+    </div>
+</div>
+
+<div id="order_by_city" class="chart">
+    <div class="title">
+        <span>用户群体分析</span>&nbsp;&gt;&nbsp;<span>全国分布</span>
+    </div>
+    <div class="body" id="city_chart">
+            
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    getChart();
+
+    getChart("city_id",id=200);
+
+    //获取数据
+    function getChart(type="province_id",id=0){     //默认为全国分布，若为特定省份分布时，id值为省份id
+
+        if(type=="province_id"){
+            var chart = echarts.init(document.getElementById('province_chart'));
+        }else{
+            var chart = echarts.init(document.getElementById('city_chart'));
+            $("#order_by_city .title").html("<span>用户群体分析</span>&nbsp;&gt;&nbsp;<span>省份（"+id+"）分布</span>");
+        }
+        chart.showLoading();
+
+        $.ajax({
+            type: 'POST',
+            url: "OrderByLocation",
+            data: {
+                type:type,
+                id:id
+            },
+            success: function(response, textStatus){
+
+                var response = eval(response);
+
+                setChart(chart,response,type);
+
+            },
+            error:function(XMLHttpRequest, textStatus, errorThrown){
+                console.log(textStatus);
+            },
+            dataType: "JSON"
+        });
+    }
+
+    //构建chart
+    function setChart(chart,response,type){     //chart为图表节点对象，response为数据，type为数据类型，取值为province_id和city_id
+
+        var dataAxis = [];
+        var data = [];
+        var yMax = parseInt(response[0]["count"]) + parseInt(response[response.length-1]["count"]);
+
+        if(type == "province_id"){
+            yMax = parseInt(parseInt(response[0]["count"])/1000 + 1)*1000;
+        }else{
+            yMax = parseInt(parseInt(response[0]["count"])/100 + 1)*100;
+        }
+        var dataShadow = [];
+
+        for (var i = 0; i < response.length; i++) {
+
+            //控制显示29个省份/城市，超出显示为其他
+            if(i<29){
+                dataAxis.push(response[i][type]);
+                data.push(parseInt(response[i]["count"]));
+                dataShadow.push(yMax);
+            }else if(i==29){
+                dataAxis.push("其他");
+                data.push(parseInt(response[i]["count"]));
+                dataShadow.push(yMax);
+            }else{
+                data[29] += parseInt(response[i]["count"]);
+            }
+            
+        }
+
+        option = {
+            tooltip: {},
+            xAxis: {
+                data: dataAxis,
+                axisTick: {
+                    show: true
+                },
+                axisLine: {
+                    show: true
+                },
+                z: 10
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                top: '3%',
+                containLabel: true
+            },
+            yAxis: {
+                axisLine: {
+                    show: true
+                },
+                axisTick: {
+                    show: true
+                },
+                axisLabel: {
+                    textStyle: {
+                        color: '#999'
+                    }
+                }
+            },
+            dataZoom: [
+                {
+                    type: 'inside'
+                }
+            ],
+            series: [
+                { // For shadow
+                    type: 'bar',
+                    itemStyle: {
+                        normal: {color: 'rgba(0,0,0,0.05)'}
+                    },
+                    barGap:'-100%',
+                    barCategoryGap:'40%',
+                    data: dataShadow,
+                    animation: false
+                },
+                {
+                    type: 'bar',
+                    itemStyle: {
+                        normal: {
+                            color: new echarts.graphic.LinearGradient(
+                                0, 0, 0, 1,
+                                [
+                                    {offset: 0, color: '#83bff6'},
+                                    {offset: 0.5, color: '#188df0'},
+                                    {offset: 1, color: '#188df0'}
+                                ]
+                            )
+                        },
+                        emphasis: {
+                            color: new echarts.graphic.LinearGradient(
+                                0, 0, 0, 1,
+                                [
+                                    {offset: 0, color: '#2378f7'},
+                                    {offset: 0.7, color: '#2378f7'},
+                                    {offset: 1, color: '#83bff6'}
+                                ]
+                            )
+                        }
+                    },
+                    data: data
+                }
+            ]
+        };
+        chart.setOption(option);
+        chart.hideLoading();
+
+        if(type=="province_id"){
+            //点击省份数据查看省份分布
+            chart.on('click', function (params) {
+                if(params.dataIndex != 29){
+                    var province_id = dataAxis[params.dataIndex];
+                    getChart("city_id",province_id);
+                }
+            });
+        }
+    }
+    
+</script>

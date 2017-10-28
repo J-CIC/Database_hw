@@ -54,6 +54,24 @@ class DataDisplayController extends BasicController{
 	    $this->assign('page',$show);// 赋值分页输出
 	    $this->display('allData'); // 输出模板
 	}
+	public function OrderByLocation(){
+		if(IS_POST){
+
+			$type = I('post.type', Null, 'htmlspecialchars');
+			$id = I('post.id', Null, 'htmlspecialchars');
+
+			if($type == "province_id"){
+				$result = D("Item")->getDataByLocation();
+			}else if($type == "city_id"){
+				$result = D("Item")->getDataByLocation($id);
+			}
+
+			$this->ajaxReturn($result);
+
+		}else{			
+			$this->display("orderbylocation");
+		}
+	}
 	public function OrderTimeDistribution(){
 		if(IS_POST){
 			$res = D("Order")->getOrdersTimeDistriubution("day");
