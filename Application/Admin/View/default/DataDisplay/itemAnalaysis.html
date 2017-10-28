@@ -1,0 +1,247 @@
+<layout name="layout" />
+
+<script src="__PUBLIC__/js/echarts.min.js"></script>
+<style type="text/css">
+	.charts{
+		width: 80%;
+		height: 500px;
+	}
+	.title{
+		padding: 10px 0px;
+		color: #333;
+		font-weight: bold;
+	}
+	#analysis #type{
+		padding: 0px;
+		margin: 0px;
+		width: 100%;
+	}
+	#analysis #type li{
+		list-style: none;
+		float: left;
+		padding:5px 0px;
+		margin: 0px 1%;
+		width: 18%;
+		border: 1px solid #0099FF;
+		border-radius: 5px;
+		color: #3399FF;
+		text-align: center;
+		cursor: pointer;
+	}
+	#analysis #type li:hover{
+		background: #3399FF;
+		color: #fff;
+	}
+	#analysis #type .active{
+		background: #3399FF;
+		color: #fff;
+	}
+	#analysis #stage{
+		padding: 30px 30px 20px 30px;
+		float: left;
+	}
+	.row{
+		padding: 15px 10px;
+	}
+	.page-info{
+		padding:10px;
+	}
+	.page-info{
+		float: left;
+	}
+</style>
+<div class="row">
+	<div class="col-lg-12">
+		<h1 class="page-header">商品分析</h1>
+	</div>
+	<!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+<div class="row" id="analysis">
+	<div class="col-lg-12 title">分析指标</div>
+	<div class="col-lg-12 body">
+		<ul id="type">
+			<li class="active" id="payRatio">支付比率分析</li>
+			<li id="totalAmount">销售额分析</li>
+			<li>多月特征</li>
+			<li>留存情况分布</li>
+		</ul>
+	</div>
+</div>
+<div class="row" id="goods_id">
+	<div id="goods_id_charts" class="charts">
+		
+	</div>
+</div>
+<div class="row" id="amount_id">
+	<div id="amount_id_charts" class="charts">
+		
+	</div>
+</div>
+<script type="text/javascript">
+var goods_id_charts = echarts.init(document.getElementById("goods_id_charts"));
+var amount_id_charts = echarts.init(document.getElementById("amount_id_charts"));
+clearSelect();
+setGoods();
+function clearSelect(){
+	$("#goods_id").hide();
+	$("#amount_id").hide();
+}
+$('#type').on('click','li',function(){
+	var id = $(this).attr('id');
+	$("#type li").attr("class","");
+	$(this).attr("class","active");
+	clearSelect();
+	if(id=="payRatio"){
+		$("#goods_id").show();
+		setGoods();
+	}else if(id=="totalAmount"){
+		$("#amount_id").show();
+		setTotalAmount();
+	}
+})
+function setGoods(){
+	goods_id_charts.resize($("#goods_id_charts").width());
+	goods_id_charts.showLoading();
+	$.ajax({
+		type: 'POST',
+		url: "itemAnalaysis",
+		data: {
+			by:"goods_id"
+		},
+		success: function(data, textStatus){
+			var arr = data.data;
+			setGoodsImage(arr);
+		},
+		error:function(XMLHttpRequest, textStatus, errorThrown){
+			console.log(textStatus);
+		},
+		dataType: "JSON"
+	});
+	function setGoodsImage(arr){
+		var dataAxis = [];
+		var data = [];
+		for (var i = 0; i <= arr.length - 1; i++) {
+			dataAxis.push(arr[i]['name'])
+			data.push(arr[i]['pay_ratio'])
+		}
+
+		option = {
+			color: ['#3398DB'],
+			title: {
+				text: '支付比率最低的商品',
+				subtext: '支付成功与订单总数的比例'
+			},
+			tooltip : {
+				trigger: 'axis',
+				axisPointer : {			// 坐标轴指示器，坐标轴触发有效
+					type : 'shadow'		// 默认为直线，可选为：'line' | 'shadow'
+				}
+			},
+			grid: {
+				left: '3%',
+				right: '4%',
+				bottom: '3%',
+				containLabel: true
+			},
+			xAxis : [
+				{
+					type : 'category',
+					data : dataAxis,
+					axisTick: {
+						alignWithLabel: true
+					},
+					show:false
+				}
+			],
+			yAxis : [
+				{
+					type : 'value'
+				}
+			],
+			series : [
+				{
+					name:'支付比率',
+					type:'bar',
+					barWidth: '60%',
+					data:data
+				}
+			]
+		};
+		goods_id_charts.setOption(option);
+		goods_id_charts.hideLoading();
+	}
+}
+function setTotalAmount(){
+	amount_id_charts.resize($("#amount_id").width());
+	amount_id_charts.showLoading();
+	$.ajax({
+		type: 'POST',
+		url: "itemAnalaysis",
+		data: {
+			by:"amount_id"
+		},
+		success: function(data, textStatus){
+			var arr = data.data;
+			setGoodsImage(arr);
+		},
+		error:function(XMLHttpRequest, textStatus, errorThrown){
+			console.log(textStatus);
+		},
+		dataType: "JSON"
+	});
+	function setGoodsImage(arr){
+		var dataAxis = [];
+		var data = [];
+		for (var i = 0; i <= arr.length - 1; i++) {
+			dataAxis.push(arr[i]['name'])
+			data.push(arr[i]['total_money']/100)
+		}
+
+		option = {
+			color: ['#3398DB'],
+			title: {
+				text: '商品销售额前十',
+				subtext: '单位：元'
+			},
+			tooltip : {
+				trigger: 'axis',
+				axisPointer : {			// 坐标轴指示器，坐标轴触发有效
+					type : 'shadow'		// 默认为直线，可选为：'line' | 'shadow'
+				}
+			},
+			grid: {
+				left: '3%',
+				right: '4%',
+				bottom: '3%',
+				containLabel: true
+			},
+			xAxis : [
+				{
+					type : 'category',
+					data : dataAxis,
+					axisTick: {
+						alignWithLabel: true
+					},
+					show:false
+				}
+			],
+			yAxis : [
+				{
+					type : 'value'
+				}
+			],
+			series : [
+				{
+					name:'销售额',
+					type:'bar',
+					barWidth: '60%',
+					data:data,
+				}
+			]
+		};
+		amount_id_charts.setOption(option);
+		amount_id_charts.hideLoading();
+	}
+}
+</script>

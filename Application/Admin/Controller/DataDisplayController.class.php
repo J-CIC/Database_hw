@@ -82,4 +82,17 @@ class DataDisplayController extends BasicController{
 			$this->display("ordertime");
 		}
 	}
+	public function itemAnalaysis(){
+		if(IS_POST){
+			if(I("post.by","")=="goods_id"){
+				$res = D("Order")->getPayStatusRatio();
+				$this->ajaxReturn(array("data"=>$res));
+			}else if(I("post.by","")=="amount_id"){
+				$res = D("Order")->getItemPayAmount();
+				$this->ajaxReturn(array("data"=>$res));
+			}
+		}else{
+			$this->display("itemAnalaysis");
+		}
+	}
 }
