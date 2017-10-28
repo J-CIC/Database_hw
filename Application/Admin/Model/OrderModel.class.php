@@ -27,4 +27,14 @@ class OrderModel extends Model{
         return $result;
     }
 
+    /**
+    * @return 
+    **/
+    public function getDistinctYear(){
+        $result = $this->field('left(create_time,4) as year')->group('create_time')->order('year asc')->select();
+        //SELECT SUM(a_pay_sum) as pay_sum,left(create_time,8) AS times FROM `t_order_data` GROUP BY left(create_time,8) ORDER BY pay_sum DESC
+        return $result;
+    }
+
+
 }

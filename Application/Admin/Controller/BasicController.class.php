@@ -33,6 +33,8 @@ class BasicController extends Controller
 		$database = D("Admin/Menu");
 		$menu = $database->getMenuList($this->role_id);
 		$this->assign("menu",$menu);
+		$year = D("Order")->getDistinctYear();
+		$this->assign("year",$year);
 	}
 	public function index(){
 		$this->show('hello','utf-8');
