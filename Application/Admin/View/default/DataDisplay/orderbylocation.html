@@ -25,7 +25,7 @@
 
 <div id="order_by_city" class="chart">
     <div class="title">
-        <span>用户群体分析</span>&nbsp;&gt;&nbsp;<span>全国分布</span>
+        <span>用户群体分析</span>&nbsp;&gt;&nbsp;<span>省份分布</span>
     </div>
     <div class="body" id="city_chart">
             
@@ -35,17 +35,16 @@
 <script type="text/javascript">
 
     getChart();
-
-    getChart("city_id",id=200);
+    getChart('city_id',200,'广东');
 
     //获取数据
-    function getChart(type="province_id",id=0){     //默认为全国分布，若为特定省份分布时，id值为省份id
+    function getChart(type="province_id",id=0,name='省份'){     //默认为全国分布，若为特定省份分布时，id值为省份id
 
         if(type=="province_id"){
             var chart = echarts.init(document.getElementById('province_chart'));
         }else{
             var chart = echarts.init(document.getElementById('city_chart'));
-            $("#order_by_city .title").html("<span>用户群体分析</span>&nbsp;&gt;&nbsp;<span>省份（"+id+"）分布</span>");
+            $("#order_by_city .title").html("<span>用户群体分析</span>&nbsp;&gt;&nbsp;<span>"+name+"省分布</span>");
         }
         chart.showLoading();
 
@@ -74,29 +73,16 @@
     function setChart(chart,response,type){     //chart为图表节点对象，response为数据，type为数据类型，取值为province_id和city_id
 
         var dataAxis = [];
+        var idList = [];
         var data = [];
-        var yMax = parseInt(response[0]["count"]) + parseInt(response[response.length-1]["count"]);
-
-        if(type == "province_id"){
-            yMax = parseInt(parseInt(response[0]["count"])/1000 + 1)*1000;
-        }else{
-            yMax = parseInt(parseInt(response[0]["count"])/100 + 1)*100;
-        }
-        var dataShadow = [];
 
         for (var i = 0; i < response.length; i++) {
 
-            //控制显示29个省份/城市，超出显示为其他
-            if(i<29){
-                dataAxis.push(response[i][type]);
+            //控制显示20个省份/城市，超出显示为其他
+            if(i<20){
+                dataAxis.push(response[i][(type=='province_id')?'prov_nm':'id_area_nm']);
+                idList.push(response[i][type]);
                 data.push(parseInt(response[i]["count"]));
-                dataShadow.push(yMax);
-            }else if(i==29){
-                dataAxis.push("其他");
-                data.push(parseInt(response[i]["count"]));
-                dataShadow.push(yMax);
-            }else{
-                data[29] += parseInt(response[i]["count"]);
             }
             
         }
@@ -146,7 +132,7 @@
                     },
                     barGap:'-100%',
                     barCategoryGap:'40%',
-                    data: dataShadow,
+                    data: data,
                     animation: false
                 },
                 {
@@ -183,9 +169,10 @@
         if(type=="province_id"){
             //点击省份数据查看省份分布
             chart.on('click', function (params) {
-                if(params.dataIndex != 29){
-                    var province_id = dataAxis[params.dataIndex];
-                    getChart("city_id",province_id);
+                if(params.dataIndex != 20){
+                    var province_id = idList[params.dataIndex];
+                    var prov_nm = dataAxis[params.dataIndex];
+                    getChart("city_id",province_id,prov_nm);
                 }
             });
         }

@@ -70,6 +70,28 @@ class OrderModel extends Model{
         return $result;
     }
 
+    public function getItemCustomerTop10(){     //终端受众度top10
+        $result = $this->table("t_order_item")->field("count(order_id) as customer_count,goods_name as name")
+            ->group("goods_id")->order("customer_count desc")
+            ->limit(0,10)->select();
+        return $result;
+    }
+
+    public function getItemCustomerProv($item_name){    //终端受众度全国分布
+        $subQuery1 = $this->table('id_name')->field('prov_cd,prov_nm')->group('prov_cd')->select(false);
+        $subQuery2 = $this->table('t_order_data data,t_order_item item')->field('province_id')->where('data.order_id = item.order_id and item.goods_name="'.$item_name.'"')->select(false);
+        //return $subQuery;
+        $result = $this->table("(".$subQuery2.")uniondata,(".$subQuery1.")idtoname")->field('province_id,max(prov_nm) as prov_nm,count(province_id) as count')->group('province_id')->where('uniondata.province_id=idtoname.prov_cd')->order('count desc')->select();
+        return $result;
+    }
+
+    public function getItemCustomerCity($item_name,$prov_nm){   //终端受众度省份分布
+        $prov_cd = $this->table('id_name')->field('prov_cd')->where('prov_nm="'.$prov_nm.'"')->group('prov_nm')->select()[0]['prov_cd'];
+        $subQuery1 = $this->table('t_order_data data,t_order_item item')->field('user_id,province_id,city_id')->where('data.order_id = item.order_id and goods_name="'.$item_name.'"')->select(false);
+        $subQuery2 = $this->table('id_name')->field('Id_area_cd,Id_area_nm')->where('prov_cd='.$prov_cd)->group('Id_area_cd')->select(false);
+        $result = $this->table("(".$subQuery1.")uniondata,(".$subQuery2.")idtoname")->field('city_id,Id_area_nm,count(city_id) as count')->group('city_id')->where('uniondata.city_id=idtoname.Id_area_cd')->order('count desc')->select();
+        return $result;
+    }
     /**
     * @return 
     **/
@@ -78,6 +100,5 @@ class OrderModel extends Model{
         //SELECT SUM(a_pay_sum) as pay_sum,left(create_time,8) AS times FROM `t_order_data` GROUP BY left(create_time,8) ORDER BY pay_sum DESC
         return $result;
     }
-
 
 }

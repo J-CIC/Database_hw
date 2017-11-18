@@ -90,6 +90,22 @@ class DataDisplayController extends BasicController{
 			}else if(I("post.by","")=="amount_id"){
 				$res = D("Order")->getItemPayAmount();
 				$this->ajaxReturn(array("data"=>$res));
+			}else if(I("post.by","")=="item_customer"){
+				if(I("post.op","")==0){		//终端受众度top10
+					//$this->ajaxReturn(array("msg"=>'success'));
+					$res = D("Order")->getItemCustomerTop10();
+					$this->ajaxReturn(array("data"=>$res));
+				}elseif(I("post.op","")==1){	//某终端受众度全国分布
+					$item_name = I("post.item_name","");
+					//$this->ajaxReturn(array($item_name));
+					$res = D("Order")->getItemCustomerProv($item_name);
+					$this->ajaxReturn(array("data"=>$res));
+				}elseif(I("post.op","")==2){	//某终端受众度省份分布
+					$item_name = I("post.item_name","");
+					$prov_nm = I("post.prov_nm","");
+					$res = D("Order")->getItemCustomerCity($item_name,$prov_nm);
+					$this->ajaxReturn(array("data"=>$res));
+				}
 			}
 		}else{
 			$this->display("itemAnalaysis");
