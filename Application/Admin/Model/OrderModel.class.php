@@ -101,4 +101,12 @@ class OrderModel extends Model{
         return $result;
     }
 
+    //商品销售渠道特征
+    public function getOrderWay(){
+        $subQuery = $this->table('t_order_data')->field('user_id,order_way')->group('user_id')->select(false);
+        $result = $this->table("(".$subQuery.")temptable")->field('temptable.order_way as order_way,count(*) as count')->group('order_way')->select();
+        return $result;
+        //select temptable.order_way,count(*) from (SELECT user_id,order_way FROM `t_order_data` group by user_id) temptable group by order_way
+    }
+
 }

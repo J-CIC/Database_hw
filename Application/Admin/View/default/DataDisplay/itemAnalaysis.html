@@ -49,6 +49,25 @@
 	.page-info{
 		float: left;
 	}
+
+	.bar{
+		width: 80%;
+		border-radius: 4px;
+		border:1px solid #ccc;
+		height:16px;
+		float:left;
+	}
+	.active_bar{
+		background: #3399FF;
+		height: 14px;
+		float:left;
+	}
+	.fa,.glyphicon{
+		cursor: pointer
+	}
+	.download:hover{
+		color: #3399FF;
+	}
 </style>
 <div class="row">
 	<div class="col-lg-12">
@@ -64,7 +83,7 @@
 			<li class="active" id="payRatio">支付比率分析</li>
 			<li id="totalAmount">销售额分析</li>
 			<li id="customerAnalysis">终端受众分析</li>
-			<li>多月特征</li>
+			<li id="orderWay">商品销售渠道特征</li>
 			<li>留存情况分布</li>
 		</ul>
 	</div>
@@ -86,14 +105,19 @@
 	</div>
 	<div id="item_customer_prov">
 		<div id="item_customer_prov_title" class="title">终端受众度&gt;全国分布</div>
-			<span class="pull-left">终端：</span><div class="item_name pull-left">LEM智能手环 测心率血压血氧计步器防水安卓苹果男女蓝牙运动手表</div>
+			<span class="pull-left">终端：</span><div class="item_name pull-left"></div>
 		<div id="item_customer_prov_charts" class="charts"></div>
 	</div>
 	<div id="item_customer_city">
 		<div id="item_customer_city_title" class="title">终端受众度Top10&gt;省份分布</div>
-			<span class="pull-left">终端：</span><div class="item_name pull-left">LEM智能手环 测心率血压血氧计步器防水安卓苹果男女蓝牙运动手表</div>
+			<span class="pull-left">终端：</span><div class="item_name pull-left"></div>
 		<div id="item_customer_city_charts" class="charts"></div>
 	</div>
+</div>
+<div class="row" id="orderway_id">
+	<div class="title"><h4>商品销售渠道特征分析</h4></div>
+	<table class="table table-bordered text-center">
+	</table>
 </div>
 <script type="text/javascript">
 var goods_id_charts = echarts.init(document.getElementById("goods_id_charts"));
@@ -110,6 +134,7 @@ function clearSelect(){
 	$("#item_customer_prov").hide();
 	$("#item_customer_city").hide();
 	$("#customer_id").hide();
+	$("#orderway_id").hide();
 }
 $('#type').on('click','li',function(){
 	var id = $(this).attr('id');
@@ -126,6 +151,9 @@ $('#type').on('click','li',function(){
 		$("#customer_id").show();
 		$("#item_customer").show();
 		setCustomerAnalysis();
+	}else if(id=="orderWay"){
+		$("#orderway_id").show();
+		setOrderWayTable();
 	}
 })
 function setGoods(){
@@ -529,4 +557,67 @@ function setCustomerAnalysis(){		//受众分析
         });
 	}
 }
+//动态加载商品销售渠道特征分析表格
+function setOrderWayTable(){
+	$.ajax({
+		type: 'GET',
+		url: "orderWay",
+		success: function(data, textStatus){
+			var arr = data.data;
+
+			$("#orderway_id table").empty();
+
+			$thead = $("<thead><tr><td style='width:10%'>移动商城</td><td style='width:10%'>手机营业厅</td><td style='width:10%'>触屏版商城</td><td style='width:10%'>用户数</td>"+"<td style='width:50%'>占比</td><td style='width:10%'>下载</td></tr></thead>");
+			$tbody = $("<tbody></tbody>");
+
+			var all_count = 0;
+			for(var i=0;i<arr.length;i++){
+				all_count += parseInt(arr[i]["count"]);
+			}
+			$tr = $("<tr><td colspan='3'>合计</td><td>"+all_count+"</td><td></td><td><span class='download fa fa-cloud-download' data-index='0' type='submit'></span></td></tr>");
+			$tbody.append($tr);
+
+			for(var i=0;i<arr.length;i++){
+				var rate = parseInt(arr[i]["count"])*100/all_count;
+				if(arr[i]["order_way"]==1){
+					$tr = $("<tr><td style='background:#3399FF'></td><td></td><td></td><td>"+arr[i]["count"]+"</td><td>"+rate.toFixed(2)+"%<div class='bar'><div class='active_bar' style='width:"+parseInt(rate)+"%'></div></div></td><td><span class='download glyphicon glyphicon-download-alt' data-index='1'></span></td></tr>");
+				}else if(arr[i]["order_way"]==2){
+					$tr = $("<tr><td></td><td style='background:#3399FF'></td><td></td><td>"+arr[i]["count"]+"</td><td>"+rate.toFixed(2)+"%<div class='bar'><div class='active_bar' style='width:"+parseInt(rate)+"%'></div></div></td><td><span class='download glyphicon glyphicon-download-alt' data-index='2'></span></td></tr>");
+				}else{
+					$tr = $("<tr><td></td><td></td><td style='background:#3399FF'></td><td>"+arr[i]["count"]+"</td><td>"+rate.toFixed(2)+"%<div class='bar'><div class='active_bar' style='width:"+parseInt(rate)+"%'></div></div></td><td><span class='download glyphicon glyphicon-download-alt' data-index='3'></span></td></tr>");
+				}
+				$tbody.append($tr);
+			}
+			$("#orderway_id table").append($thead);
+			$("#orderway_id table").append($tbody);
+		},
+		error:function(XMLHttpRequest, textStatus, errorThrown){
+			console.log(textStatus);
+		},
+		dataType: "JSON"
+
+	});
+}
+//点击下载按钮下载数据
+$("#orderway_id table").on("click",".download",function(){
+	var op = $(this).data("index");
+	var params = new Array();
+	params["op"] = op;
+	post('orderWay',params);
+});
+function post(URL, PARAMS) { 
+	var temp_form = document.createElement("form");      
+    temp_form .action = URL;      
+    temp_form .target = "_blank";
+    temp_form .method = "post";      
+    temp_form .style.display = "none"; 
+    for (var x in PARAMS) { 
+    	var opt = document.createElement("textarea");      
+        opt.name = x;      
+        opt.value = PARAMS[x];      
+        temp_form .appendChild(opt);      
+    }      
+    document.body.appendChild(temp_form);      
+    temp_form .submit();     
+} 
 </script>

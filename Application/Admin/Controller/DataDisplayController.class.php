@@ -111,4 +111,59 @@ class DataDisplayController extends BasicController{
 			$this->display("itemAnalaysis");
 		}
 	}
+	public function orderWay(){
+		if(IS_GET){
+			$res = D("Order")->getOrderWay();
+			$this->ajaxReturn(array("data"=>$res));
+		}else if(IS_POST){
+			//以excel形式下载数据
+			$op = I("post.op","");
+			$Data = M('t_order_data');
+			$header = array(
+				array(
+					"name"=>"商户ID",
+					"width"=>20,
+					"key"=>"merchant_id",
+				),
+				array(
+					"name"=>"用户ID",
+					"width"=>20,
+					"key"=>"user_id",
+				),
+				array(
+					"name"=>"用户名",
+					"width"=>20,
+					"key"=>"user_name",
+				),
+				array(
+					"name"=>"参与渠道",
+					"width"=>20,
+					"key"=>"order_channel",
+				),
+				array(
+					"name"=>"业务类型",
+					"width"=>20,
+					"key"=>"order_type",
+				)
+			);
+			if($op==0){	//全量
+				$filename = "商品销售渠道特征全量表";
+				$content = $Data->field("merchant_id,user_id,user_name,order_channel,order_type")->select(); 
+				R("Tool/exportToExcel",[$filename,$header,$content]);
+
+			}else if($op==1){	//商城，order_way = 1
+				$filename = "商品销售渠道特征移动商城表";
+				$content = $Data->field("merchant_id,user_id,user_name,order_channel,order_type")->select(); 
+				R("Tool/exportToExcel",[$filename,$header,$content]);
+			}else if($op==2){	//手厅，order_way = 2
+				$filename = "商品销售渠道特征手机营业厅表";
+				$content = $Data->field("merchant_id,user_id,user_name,order_channel,order_type")->select(); 
+				R("Tool/exportToExcel",[$filename,$header,$content]);
+			}else if($op==3){	//触屏，order_way = 5
+				$filename = "商品销售渠道特征触屏版商城表";
+				$content = $Data->field("merchant_id,user_id,user_name,order_channel,order_type")->select(); 
+				R("Tool/exportToExcel",[$filename,$header,$content]);
+			}
+		}
+	}
 }
