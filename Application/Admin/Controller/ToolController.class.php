@@ -11,13 +11,17 @@ class ToolController extends Controller
     */
     public function exportToExcel($filename,$header,$content)
     {
-        
+        set_time_limit(0);
         import("Org.Util.PHPExcel");
         import("Org.Util.PHPExcel.IOFactory");
         import("Org.Util.PHPExcel.Writer.Excel2007");
         $objPHPExcel = new \PHPExcel();
         $objWriter = new \PHPExcel_Writer_Excel2007($objPHPExcel);
         $objActSheet = $objPHPExcel->getActiveSheet();
+
+        $cacheMethod = \PHPExcel_CachedObjectStorageFactory:: cache_to_phpTemp;  
+        $cacheSettings = array( ' memoryCacheSize '  => '8MB' );  
+        \PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings); 
 
         if(!is_array($header)||!is_array($content)){
             throw new \Exception("Wrong Parameters!", 1);
@@ -35,20 +39,19 @@ class ToolController extends Controller
         
 
         $savename = date("ymdHi").$filename;
-        // header("Content-Type: application/vnd.ms-excel;charset=gbk");  
-        // header("Content-Disposition: attachment; filename=".$savename.".xlsx");  
-        // header("Pragma: no-cache");
+        header("Content-Type: application/vnd.ms-excel;charset=gbk");  
+        header("Content-Disposition: attachment; filename=".$savename.".xlsx");  
+        header("Pragma: no-cache");
         foreach($content as $i=>$row_content){
             $row = $i+2;
             foreach ($header as $key => $value) {
                 $alpha = strtoupper(chr($key+65));//大写字母
                 $tableHeader = $alpha.$row;
-                var_dump($row_content[$value["key"]]);
                 $objActSheet->setCellValue($tableHeader, $row_content[$value["key"]]);
             }
         }
-        // $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-        // $objWriter->save('php://output'); //文件通过浏览器下载
-        // die();
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output'); //文件通过浏览器下载
+        die();
     }
 }
