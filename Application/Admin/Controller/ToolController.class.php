@@ -20,7 +20,7 @@ class ToolController extends Controller
         $objActSheet = $objPHPExcel->getActiveSheet();
 
         if(!is_array($header)||!is_array($content)){
-            throw new /Exception("Wrong Parameters!", 1);
+            throw new \Exception("Wrong Parameters!", 1);
         }
 
         foreach ($header as $key => $value) {
