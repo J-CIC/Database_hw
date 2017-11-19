@@ -20,7 +20,7 @@ class ToolController extends Controller
         $objActSheet = $objPHPExcel->getActiveSheet();
 
         $cacheMethod = \PHPExcel_CachedObjectStorageFactory:: cache_to_phpTemp;  
-        $cacheSettings = array( ' memoryCacheSize '  => '8MB' );  
+        $cacheSettings = array();  
         \PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings); 
 
         if(!is_array($header)||!is_array($content)){
