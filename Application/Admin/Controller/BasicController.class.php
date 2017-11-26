@@ -37,8 +37,24 @@ class BasicController extends Controller
 		$this->assign("year",$year);
 		$province = D("Province")->getProvince($this->role_id);
 		$this->assign("province",$province);
+		$this->checkProvince($province);
 	}
 	public function index(){
 		$this->show('hello','utf-8');
+	}
+	public function checkProvince($province){
+		$name = $_POST["province_location"];
+		if(isset($name)){
+			$list = array();
+			foreach ($province as $key => $value) {
+				# code...
+				$list []= $value["province_name"];
+			}
+			if(!in_array($name,$list)){
+				$this->error("你没有对应省份权限");
+				die();
+			}
+		}
+		
 	}
 }
