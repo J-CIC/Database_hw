@@ -90,6 +90,40 @@ class RoleController extends BasicController{
             $this->display();
         }
     }
+    public function editProvince(){
+        if(IS_POST){
+            $data = array();
+            $input = I("post.Province");
+            $cond["role_id"] = I("post.id",0,'intval');
+            foreach ($input as $key => $value) {
+                $temp = D("Province")->getSingleProvince($value);
+                $arr = array("role_id"=>I("post.id",1,'intval'),"province_id"=>$temp["id"],"province_name"=>$temp["province_name"]);
+                $data []= $arr;
+            }
+            if((D("Province")->where($cond)->delete())!==false){
+                if(D("Province")->addAll($data)){
+                    $this->success("更改成功");
+                }else{
+                    print_r($data);
+                    $this->error("更改失败");
+                }
+            }else{
+                $this->error("更改失败");
+            }
+        }else{
+            $id = I("get.id",1,'intval');
+            $arr = D("Role")->getAllRole();
+            $Province = D("Province")->getAllProvince();
+            $this->assign("Province",$Province);
+            $this->assign("Roles",$arr);
+            $this->assign("id",$id);
+            $this->display();
+        }
+    }
+    public function getProvinceAccess(){
+        $result = array("Province"=>D("Province")->getProvince(I("post.id")));
+        $this->ajaxReturn($result);
+    }
     public function getRoleAccess(){
         $result = array("Access"=>D("Access")->getAccess(I("post.id")));
         $this->ajaxReturn($result);

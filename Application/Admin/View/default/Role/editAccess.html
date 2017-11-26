@@ -19,7 +19,7 @@
             <foreach name="Access" item="paccess" >
                 <ul style="list-style-type:none;">
                     <li style="list-style-type:none;">
-                        <label class="checkbox-inline">
+                        <label class="checkbox-inline Controller">
                             <input type="checkbox" name="Access[]" value="{$paccess.id}" id="{$paccess.id}">{$paccess.title}
                         </label>
                         <ul>
@@ -65,4 +65,14 @@
 			dataType: "JSON"
 		});
 	}
+	var te;
+	$(".Controller").on("click",function(e){
+		if(e.target.tagName=="LABEL"){
+			var label = $(e.target)
+			label.next().find("input").each(function(){
+				$(this).attr("checked", !$(this).attr("checked"));
+			})
+		}
+
+	});
 </script>

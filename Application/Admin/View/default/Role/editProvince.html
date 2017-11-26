@@ -1,0 +1,63 @@
+<layout name="layout" />
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">编辑角色组省份权限</h1 >
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+<div class="row">
+	<form class="addUser col-lg-4" action="editProvince" method="POST" style="margin-bottom:30px;">
+        <div class="form-group">
+			<label>角色组</label>
+			<select class="form-control" name="id" id="Role">
+				<foreach name="Roles" item="item" ><option value="{$item.id}">{$item.id}({$item.name})</option></foreach>
+			</select>
+		</div>
+		<div class="form-group">
+			<ul style="list-style-type:none;">
+				<div class="btn btn-primary controller">全选</div>
+				<foreach name="Province" item="cprovince">
+					<li style="list-style-type:none;" >
+						<label class="checkbox-inline">
+							<input type="checkbox" name="Province[]" value="{$cprovince.id}" id="{$cprovince.id}">{$cprovince.province_name}
+						</label>
+					</li>
+				</foreach>
+			</ul>
+        </div>
+		<input type="submit" class="btn btn-primary" value="更新">
+	</form>
+</div>
+<script>
+	document.getElementById("Role").addEventListener("change",getProvinceAccess);
+	$(document).ready(function() { 
+		getProvinceAccess();
+	}); 
+	$("#Role").val({$id});
+	function getProvinceAccess(){
+		var roleid = $("#Role").val();
+		$.ajax({
+			type: 'POST',
+			url: "getProvinceAccess",
+			data: {
+				id:roleid,
+			},
+			success: function(data, textStatus){
+                data = data["Province"];
+                $("input[name='Province[]']").attr('checked',false);
+				for(var i=0;i<data.length;i++){
+                    $("#"+data[i].province_id).attr('checked', 'true');
+                }
+			},
+			error:function(XMLHttpRequest, textStatus, errorThrown){
+				console.log(textStatus);
+			},
+			dataType: "JSON"
+		});
+	}
+	$(".controller").on("click",function(e){
+		label = $(e.target)
+		label.parent().find("input").attr("checked", "checked");
+	});
+</script>

@@ -35,6 +35,8 @@ class BasicController extends Controller
 		$this->assign("menu",$menu);
 		$year = D("Order")->getDistinctYear();
 		$this->assign("year",$year);
+		$province = D("Province")->getProvince($this->role_id);
+		$this->assign("province",$province);
 	}
 	public function index(){
 		$this->show('hello','utf-8');
