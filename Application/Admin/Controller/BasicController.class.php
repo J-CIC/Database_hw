@@ -48,7 +48,7 @@ class BasicController extends Controller
 			$list = array();
 			foreach ($province as $key => $value) {
 				# code...
-				$list []= $value["province_name"];
+				$list []= $value["id"];
 			}
 			if(!in_array($name,$list)){
 				$this->error("你没有对应省份权限");
