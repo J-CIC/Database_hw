@@ -148,7 +148,7 @@ class DataDisplayController extends BasicController{
 			);
 			if($op==0){	//全量
 				$filename = "商品销售渠道特征全量表";
-				$content = $Data->field("merchant_id,user_id,user_name,order_channel,order_type")->select(); 
+				$content = $Data->field("merchant_id,user_id,user_name,order_channel,order_type")->limit(0,100)->select(); 
 				// print_r($content);
 				R("Tool/exportToExcel",[$filename,$header,$content]);
 

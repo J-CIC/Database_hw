@@ -256,22 +256,22 @@
                         <ul class="nav" id="side-menu">
                             <li>
                                 <div id="query-info">
-                                    <form role="form" action="__MODULE__/DataDisplay/allData" method="post">
+                                    <form role="form">
                                         <div class="form-group">
                                             <select class="form-control" name="date">
-                                                <option>2017-05</option>
-                                                <option>2017-06</option>
-                                                <option>2017-11</option>
+                                                <option class="date">2017-05</option>
+                                                <option class="date" selected>2017-06</option>
+                                                <option class="date">2017-11</option>
                                             </select>
                                         </div>
                                         <div class="form-group">
                                             <select class="form-control" name="province_location">
                                                 <foreach name="province" item="item" >
-                                                    <option value="{$item.province_id}">{$item.province_name}</option>
+                                                    <option value="{$item.province_id}" class="province">{$item.province_name}</option>
                                                 </foreach>
                                             </select>
                                         </div>
-                                        <button type="submit" class="btn btn-primary center-block" id="queryBtn">确定</button>
+                                        <button class="btn btn-primary center-block" id="queryBtn">确定</button>
                                     </form>
                                 </div>
                             </li>
@@ -284,7 +284,9 @@
                                     <ul class="nav nav-second-level">
                                         <foreach name="pmenu['sub']" item="smenu">
                                             <li>
-                                                <a href="__MODULE__/{$pmenu.name}/{$smenu.name}"><i class="fa {$smenu.remark} fa-fw"></i>{$smenu.title}</a>
+                                                <if condition="$pmenu.name eq 'DataDisplay'"><a href='javascript:;' onclick="window.location.href='__MODULE__/{$pmenu.name}/{$smenu.name}?date='+ date +'&province_location='+ province "><i class='fa {$smenu.remark} fa-fw'></i>{$smenu.title}</a>
+                                               <else /><a href="__MODULE__/{$pmenu.name}/{$smenu.name}"><i class='fa {$smenu.remark} fa-fw'></i>{$smenu.title}</a>
+                                               </if>
                                             </li>
                                         </foreach>
                                     </ul>
@@ -317,9 +319,25 @@
             <!-- Custom Theme JavaScript -->
             <script src="__PUBLIC__/dist/js/sb-admin-2.js"></script>
             
-            <div id="page-wrapper" >
+            <div id="page-wrapper">
                 {__CONTENT__}
             </div>
         </div>
-	</body>
+	</body>  
+    <script type="text/javascript">
+        //获取当前url参数
+        var all_params = location.search; //获取url中"?"符后的字串
+        window.date = document.getElementsByClassName("date")[0].value;
+        window.province = document.getElementsByClassName("province")[0].value;
+        params_info = all_params.split("&");
+        for(i in  params_info){
+            param_info = params_info[i];
+            if(param_info.split("date=").length>1){
+                date = param_info.split("date=")[1];
+            }
+            if(param_info.split("province_location=").length>1){
+                province = param_info.split("province_location=")[1];
+            }
+        }
+    </script> 
 </html>

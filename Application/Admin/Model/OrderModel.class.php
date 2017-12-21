@@ -80,7 +80,6 @@ class OrderModel extends Model{
     public function getItemCustomerProv($item_name){    //终端受众度全国分布
         $subQuery1 = $this->table('id_name')->field('prov_cd,prov_nm')->group('prov_cd')->select(false);
         $subQuery2 = $this->table('t_order_data data,t_order_item item')->field('province_id')->where('data.order_id = item.order_id and item.goods_name="'.$item_name.'"')->select(false);
-        //return $subQuery;
         $result = $this->table("(".$subQuery2.")uniondata,(".$subQuery1.")idtoname")->field('province_id,max(prov_nm) as prov_nm,count(province_id) as count')->group('province_id')->where('uniondata.province_id=idtoname.prov_cd')->order('count desc')->select();
         return $result;
     }
